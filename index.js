@@ -32,18 +32,22 @@ app.get('/mobiles', (req, res) => {
 
 // Endpoint to add a new mobile with an image
 app.post('/mobiles', upload.single('image'), (req, res) => {
-  const { name, price, model } = req.body;
-  const newMobile = {
-    id: mobiles.length + 1,
-    name,
-    price,
-    model,
-    imageUrl: `/uploads/${req.file.filename}`  // Save image URL
-  };
-  mobiles.push(newMobile);
-  res.status(201).send('Mobile added successfully');
-});
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  try {
+    const { name, price, model } = req.body;
+    if (!req.file) {
+      return res.status(400).send('Image upload failed');
+    }
+    const newMobile = {
+      id: mobiles.length + 1,
+      name,
+      price,
+      model,
+      imageUrl: `/uploads/${req.file.filename}`
+    };
+    mobiles.push(newMobile);
+    res.status(201).send('Mobile added successfully');
+  } catch (error) {
+    console.error('Error adding mobile:', error);
+    res.status(500).send('Server error');
+  }
 });
